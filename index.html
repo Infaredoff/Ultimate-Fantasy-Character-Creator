@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Ultimate Fantasy Character Creator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Lato', sans-serif;
+        background-color: #0D1117;
+        background-image: 
+          radial-gradient(circle at 25px 25px, rgba(20, 184, 166, 0.2) 2%, transparent 0%), 
+          radial-gradient(circle at 75px 75px, rgba(20, 184, 166, 0.2) 2%, transparent 0%);
+        background-size: 100px 100px;
+      }
+      .font-cinzel {
+        font-family: 'Cinzel', serif;
+      }
+      .glow-border {
+        box-shadow: 0 0 5px rgba(20, 184, 166, 0.5), 0 0 10px rgba(20, 184, 166, 0.4);
+      }
+      .text-glow {
+        text-shadow: 0 0 8px rgba(20, 184, 166, 0.7);
+      }
+      @keyframes hover-float {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-8px);
+        }
+      }
+      .animate-hover-float {
+        animation: hover-float 4s ease-in-out infinite;
+      }
+      @keyframes roll-dice {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      .animate-roll-dice {
+        animation: roll-dice 1s linear infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>

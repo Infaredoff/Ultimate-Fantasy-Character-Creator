@@ -1,0 +1,5 @@
+{
+  "name": "Fantasy Character Generator",
+  "description": "Generate a complete fantasy novel character dossier from a few basic inputs. The AI will create a detailed character profile, including backstory, personality, appearance, and abilities, perfect for writers, role-players, and creators.",
+  "requestFramePermissions": []
+}
