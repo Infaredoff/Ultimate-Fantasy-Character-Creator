@@ -1,3 +1,9 @@
+// WARNING: This file contains server-side logic and uses an API key.
+// In a production environment, this file and your API key should NEVER be exposed on the client-side.
+// The logic within this file should be moved to a secure backend server,
+// and your frontend application should make API calls to that server.
+// The new `apiService.ts` file has been set up to facilitate this transition.
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { UserInput, Character, Beast, BeastInput, RerollableSection } from '../types';
 

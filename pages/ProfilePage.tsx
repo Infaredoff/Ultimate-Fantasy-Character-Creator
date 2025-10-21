@@ -1,6 +1,7 @@
 // Fix: Created the ProfilePage component.
 import React, { useState, useEffect } from 'react';
 import { User, Character, Beast } from '../types';
+import * as apiService from '../services/apiService';
 
 interface ProfilePageProps {
     user: User | null;
@@ -8,16 +9,24 @@ interface ProfilePageProps {
 
 const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
     const [savedItems, setSavedItems] = useState<(Character & { savedType: 'character' } | Beast & { savedType: 'beast' })[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (user) {
-            try {
-                const items = JSON.parse(localStorage.getItem('savedProfileItems') || '[]');
-                setSavedItems(items);
-            } catch (e) {
-                console.error("Failed to load saved items", e);
+        const loadItems = async () => {
+            if (user) {
+                try {
+                    const items = await apiService.getProfileItems();
+                    setSavedItems(items as any);
+                } catch (e) {
+                    console.error("Failed to load saved items", e);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                setIsLoading(false);
             }
-        }
+        };
+        loadItems();
     }, [user]);
 
     if (!user) {
@@ -40,7 +49,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({ user }) => {
                 </div>
 
                 <h2 className="font-cinzel text-3xl text-teal-200 text-glow mb-4 text-center">Saved Creations</h2>
-                {savedItems.length > 0 ? (
+                {isLoading ? (
+                    <p className="text-center text-gray-400">Loading saved creations...</p>
+                ) : savedItems.length > 0 ? (
                     <div className="space-y-4">
                         {savedItems.map(item => (
                             <div key={item.id} className="bg-gray-800/50 p-4 rounded-lg border border-teal-800">

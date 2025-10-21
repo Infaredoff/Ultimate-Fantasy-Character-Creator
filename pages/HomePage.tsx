@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import InputForm from '../components/InputForm';
 import CharacterDossier from '../components/CharacterDossier';
-import { generateCharacter, regenerateCharacterSection } from '../services/geminiService';
+import * as apiService from '../services/apiService';
 import { Character, UserInput, RerollableSection } from '../types';
 
 interface HomePageProps {
@@ -17,36 +17,29 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
     const [isLoadingReroll, setIsLoadingReroll] = useState<RerollableSection | null>(null);
 
     useEffect(() => {
-        try {
-            const savedCharacters = localStorage.getItem('characters');
-            if (savedCharacters) {
-                setCharacters(JSON.parse(savedCharacters));
+        const loadCharacters = async () => {
+            setIsLoading(true);
+            try {
+                const chars = await apiService.getCharacters();
+                setCharacters(chars);
+            } catch (e) {
+                setError("Failed to load previously generated characters.");
+            } finally {
+                setIsLoading(false);
             }
-        } catch (e) {
-            console.error("Failed to parse characters from localStorage", e);
-            localStorage.removeItem('characters');
-        }
+        };
+        loadCharacters();
     }, []);
-
-    useEffect(() => {
-        try {
-            if (characters.length > 0) {
-                localStorage.setItem('characters', JSON.stringify(characters));
-            } else {
-                localStorage.removeItem('characters');
-            }
-        } catch (e) {
-            console.error("Failed to save characters to localStorage", e);
-        }
-    }, [characters]);
 
     const handleGenerate = async (input: UserInput) => {
         setIsLoading(true);
         setError(null);
         setCurrentUserInput(input);
         try {
-            const newCharacter = await generateCharacter(input);
-            setCharacters(prev => [newCharacter, ...prev]);
+            const newCharacter = await apiService.createCharacter(input);
+            const updatedCharacters = [newCharacter, ...characters];
+            setCharacters(updatedCharacters);
+            await apiService.saveCharacters(updatedCharacters);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
         } finally {
@@ -70,10 +63,12 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
             const characterToUpdate = characters.find(c => c.id === characterId);
             if (!characterToUpdate) throw new Error("Character not found for reroll");
 
-            const updatedSection = await regenerateCharacterSection(characterToUpdate, section);
-            setCharacters(prev => prev.map(c => 
+            const updatedSection = await apiService.rerollCharacterSection(characterToUpdate, section);
+            const updatedCharacters = characters.map(c => 
                 c.id === characterId ? { ...c, ...updatedSection } : c
-            ));
+            );
+            setCharacters(updatedCharacters);
+            await apiService.saveCharacters(updatedCharacters);
         } catch (err) {
              setError(err instanceof Error ? err.message : 'An unknown error occurred during reroll.');
         } finally {
@@ -81,16 +76,18 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
         }
     };
 
-    const handleDeleteCharacter = (id: string) => {
-        setCharacters(prev => prev.filter(c => c.id !== id));
+    const handleDeleteCharacter = async (id: string) => {
+        const updatedCharacters = characters.filter(c => c.id !== id);
+        setCharacters(updatedCharacters);
+        await apiService.saveCharacters(updatedCharacters);
     };
 
-    const handleSaveToProfile = (character: Character) => {
+    const handleSaveToProfile = async (character: Character) => {
         try {
-            const savedItems = JSON.parse(localStorage.getItem('savedProfileItems') || '[]');
-            if (!savedItems.some((item: Character) => item.id === character.id)) {
-                savedItems.push({ ...character, savedType: 'character' });
-                localStorage.setItem('savedProfileItems', JSON.stringify(savedItems));
+            const savedItems = await apiService.getProfileItems();
+            if (!savedItems.some((item: any) => item.id === character.id)) {
+                const newItems: any[] = [...savedItems, { ...character, savedType: 'character' }];
+                await apiService.saveProfileItems(newItems);
                 alert(`${character.name} saved to profile!`);
             } else {
                 alert(`${character.name} is already saved.`);

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import BeastInputForm from '../components/BeastInputForm';
 import BeastDossier from '../components/BeastDossier';
-import { generateBeast } from '../services/geminiService';
+import * as apiService from '../services/apiService';
 import { Beast, BeastInput } from '../types';
 
 interface BeastPageProps {
@@ -15,35 +15,28 @@ const BeastPage: React.FC<BeastPageProps> = ({ isLoggedIn }) => {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        try {
-            const savedBeasts = localStorage.getItem('beasts');
-            if (savedBeasts) {
-                setBeasts(JSON.parse(savedBeasts));
+        const loadBeasts = async () => {
+            setIsLoading(true);
+            try {
+                const loadedBeasts = await apiService.getBeasts();
+                setBeasts(loadedBeasts);
+            } catch (e) {
+                setError("Failed to load previously generated beasts.");
+            } finally {
+                setIsLoading(false);
             }
-        } catch (e) {
-            console.error("Failed to parse beasts from localStorage", e);
-            localStorage.removeItem('beasts');
-        }
+        };
+        loadBeasts();
     }, []);
-
-    useEffect(() => {
-        try {
-            if (beasts.length > 0) {
-                localStorage.setItem('beasts', JSON.stringify(beasts));
-            } else {
-                 localStorage.removeItem('beasts');
-            }
-        } catch(e) {
-            console.error("Failed to save beasts to localStorage", e);
-        }
-    }, [beasts]);
 
     const handleGenerate = async (input: BeastInput) => {
         setIsLoading(true);
         setError(null);
         try {
-            const newBeast = await generateBeast(input);
-            setBeasts(prev => [newBeast, ...prev]);
+            const newBeast = await apiService.createBeast(input);
+            const updatedBeasts = [newBeast, ...beasts];
+            setBeasts(updatedBeasts);
+            await apiService.saveBeasts(updatedBeasts);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An unknown error occurred.');
         } finally {
@@ -51,16 +44,18 @@ const BeastPage: React.FC<BeastPageProps> = ({ isLoggedIn }) => {
         }
     };
     
-    const handleDeleteBeast = (id: string) => {
-        setBeasts(prev => prev.filter(b => b.id !== id));
+    const handleDeleteBeast = async (id: string) => {
+        const updatedBeasts = beasts.filter(b => b.id !== id);
+        setBeasts(updatedBeasts);
+        await apiService.saveBeasts(updatedBeasts);
     };
 
-    const handleSaveToProfile = (beast: Beast) => {
+    const handleSaveToProfile = async (beast: Beast) => {
         try {
-            const savedItems = JSON.parse(localStorage.getItem('savedProfileItems') || '[]');
-            if (!savedItems.some((item: Beast) => item.id === beast.id)) {
-                savedItems.push({ ...beast, savedType: 'beast' });
-                localStorage.setItem('savedProfileItems', JSON.stringify(savedItems));
+            const savedItems = await apiService.getProfileItems();
+            if (!savedItems.some((item: any) => item.id === beast.id)) {
+                const newItems: any[] = [...savedItems, { ...beast, savedType: 'beast' }];
+                await apiService.saveProfileItems(newItems);
                 alert(`${beast.display_name} saved to profile!`);
             } else {
                 alert(`${beast.display_name} is already saved.`);
