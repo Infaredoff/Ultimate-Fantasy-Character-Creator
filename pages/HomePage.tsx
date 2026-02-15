@@ -1,4 +1,3 @@
-// Fix: Created the HomePage component to serve as the main view for character generation.
 import React, { useState, useEffect } from 'react';
 import InputForm from '../components/InputForm';
 import CharacterDossier from '../components/CharacterDossier';
@@ -18,15 +17,8 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
 
     useEffect(() => {
         const loadCharacters = async () => {
-            setIsLoading(true);
-            try {
-                const chars = await apiService.getCharacters();
-                setCharacters(chars);
-            } catch (e) {
-                setError("Failed to load previously generated characters.");
-            } finally {
-                setIsLoading(false);
-            }
+            const chars = await apiService.getCharacters();
+            setCharacters(chars);
         };
         loadCharacters();
     }, []);
@@ -41,7 +33,7 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
             setCharacters(updatedCharacters);
             await apiService.saveCharacters(updatedCharacters);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred.');
+            setError(err instanceof Error ? err.message : 'The forge grew cold. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -50,7 +42,7 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
     const handleGenerateVariant = async (originalCharacter: Character, originalInput: UserInput) => {
         const variantInput = {
             ...originalInput,
-            description: `${originalInput.description} (variant of ${originalCharacter.name})`,
+            description: `${originalInput.description} (a twisted variant of ${originalCharacter.name})`,
             isVariant: true,
         };
         handleGenerate(variantInput);
@@ -58,10 +50,9 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
     
     const handleRerollSection = async (characterId: string, section: RerollableSection) => {
         setIsLoadingReroll(section);
-        setError(null);
         try {
             const characterToUpdate = characters.find(c => c.id === characterId);
-            if (!characterToUpdate) throw new Error("Character not found for reroll");
+            if (!characterToUpdate) return;
 
             const updatedSection = await apiService.rerollCharacterSection(characterToUpdate, section);
             const updatedCharacters = characters.map(c => 
@@ -70,7 +61,7 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
             setCharacters(updatedCharacters);
             await apiService.saveCharacters(updatedCharacters);
         } catch (err) {
-             setError(err instanceof Error ? err.message : 'An unknown error occurred during reroll.');
+             setError("The fates refused to turn. Reroll failed.");
         } finally {
             setIsLoadingReroll(null);
         }
@@ -88,13 +79,12 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
             if (!savedItems.some((item: any) => item.id === character.id)) {
                 const newItems: any[] = [...savedItems, { ...character, savedType: 'character' }];
                 await apiService.saveProfileItems(newItems);
-                alert(`${character.name} saved to profile!`);
+                alert(`${character.name} etched into your profile.`);
             } else {
-                alert(`${character.name} is already saved.`);
+                alert(`${character.name} already exists in your archives.`);
             }
         } catch (e) {
-            console.error("Failed to save to profile", e);
-            setError("Could not save character to profile.");
+            setError("The archives are full or inaccessible.");
         }
     };
 
@@ -105,19 +95,19 @@ const HomePage: React.FC<HomePageProps> = ({ isLoggedIn }) => {
                     Character Creator
                 </h1>
                 <p className="text-lg text-gray-400 mt-2">
-                    Craft legendary heroes and villains for your stories and campaigns.
+                    Craft legendary heroes and villains. Your data is stored locally in your browser.
                 </p>
             </div>
 
             <InputForm onGenerate={handleGenerate} isLoading={isLoading} initialData={currentUserInput} />
 
             {error && (
-                <div className="my-4 p-4 bg-red-900/50 border border-red-500 text-red-200 rounded-md text-center">
+                <div className="my-4 p-4 bg-red-900/40 border border-red-500/50 text-red-200 rounded-md text-center backdrop-blur-sm">
                     {error}
                 </div>
             )}
 
-            <div className="mt-12 space-y-8">
+            <div className="mt-12 space-y-12">
                 {characters.map(char => (
                     <CharacterDossier 
                         key={char.id} 
