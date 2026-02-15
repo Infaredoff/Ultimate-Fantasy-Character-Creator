@@ -1,16 +1,15 @@
-// Fix: Populating the types file to be used across the application.
+
 export interface UserInput {
   role: string;
   description: string;
+  race?: string;
   archetype?: string;
   goals?: string;
   tags?: string;
   swordType?: string;
   storySummary?: string;
   characterRelationships?: string;
-  isVariant?: boolean;
   gender?: string;
-  race?: string;
   characterType?: string;
 }
 
@@ -20,35 +19,40 @@ export interface Character {
   race: string;
   characterClass: string;
   archetype: string;
+  tags: string[];
   appearance: {
     height: string;
     build: string;
     hair: string;
     eyes: string;
+    sensoryDetail: string;
+    attire: string;
     distinguishingFeatures: string;
   };
   personality: {
     traits: string[];
     quirks: string[];
-    fears: string[];
+    theMask: string;
+    deepSecret: string;
     motivations: string;
     goals: string;
+    fears: string[];
   };
   backstory: string;
   abilities: {
     name: string;
     type: 'skill' | 'magic' | 'other';
+    rarity: string;
     effect: string;
-    rarity: 'common' | 'uncommon' | 'rare' | 'unique';
   }[];
   equipment: string[];
   relationships: {
-    role: 'mentor' | 'rival' | 'lover' | 'family' | 'patron' | 'enemy' | 'friend';
+    role: string;
     name: string;
+    dynamic: string;
     description: string;
   }[];
   plotHooks: string[];
-  tags: string[];
   quote: string;
   export: {
     imagePrompt: string;
@@ -63,7 +67,7 @@ export interface Character {
   };
 }
 
-export type RerollableSection = keyof Omit<Character, 'id' | 'export' | 'name' | 'race' | 'characterClass'>;
+export type RerollableSection = 'backstory' | 'appearance' | 'personality' | 'abilities' | 'relationships';
 
 export interface BeastInput {
     description: string;
@@ -75,40 +79,38 @@ export interface BeastInput {
 export interface Beast {
     id: string;
     display_name: string;
-    taxonomy: 'Beast' | 'Humanoid' | 'Aberration' | 'Construct' | 'Fauna' | 'Faerie' | 'Undead';
-    affinity: string[];
-    archetype: 'predator' | 'guardian' | 'pack' | 'solitary' | 'parasitic' | 'symbiotic' | 'scavenger' | 'apex' | 'ambush';
-    intelligence_level: string;
-    size_class: 'Tiny' | 'Small' | 'Medium' | 'Large' | 'Huge' | 'Gargantuan';
-    environment: string[];
+    taxonomy: string;
+    archetype: string;
     appearance_description: string;
+    rarity: string;
+    size_class: string;
+    taming_possibility: string;
+    affinity: string[];
+    environment: string[];
+    intelligence_level: string;
+    aggression: string;
+    perception: string;
+    durability: string;
+    movement_modes: string[];
     key_features: string[];
     abilities: {
         name: string;
-        type: 'active' | 'passive';
+        type: string;
         effect_summary: string;
     }[];
+    combat_style: string[];
     weaknesses: string[];
     flaw: string;
-    combat_style: string[];
-    perception: string;
-    aggression: string;
-    durability: string;
-    movement_modes: string[];
+    ecological_role: string;
     social_structure: string;
+    mythos_rumor: string;
     loot_table: {
         item_name: string;
-        rarity: 'common' | 'uncommon' | 'rare' | 'unique';
+        rarity: string;
         narrative_use: string;
     }[];
-    ecological_role: string;
-    mythos_rumor: string;
-    taming_possibility: 'wild' | 'trainable' | 'bondable' | 'mountable' | 'impossible';
-    encounter_difficulty: string;
-    rarity: 'common' | 'uncommon' | 'rare' | 'unique';
-    audio_cues: string;
-    image_prompt: string;
     example_encounters: string[];
+    image_prompt: string;
 }
 
 export type Page = 'home' | 'beast' | 'profile' | 'login' | 'contact' | 'privacy' | 'terms' | 'ai-warnings';

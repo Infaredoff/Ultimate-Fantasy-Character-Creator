@@ -1,89 +1,70 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Fantasy Novel Character & Beast Generator</title>
+    <title>Fantasy Dossier - Character & Beast Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Lato:wght@300;400;700&family=MedievalSharp&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Quicksand:wght@300;400;600&family=MedievalSharp&display=swap" rel="stylesheet">
     <style>
       :root {
-        --color-magic: #14b8a6;
-        --color-magic-glow: rgba(20, 184, 166, 0.4);
+        --color-magic: #06b6d4;
         --color-gold: #fbbf24;
+        --bg-deep: #020617;
       }
       body {
-        font-family: 'Lato', sans-serif;
-        background-color: #020617;
-        color: #e2e8f0;
+        font-family: 'Quicksand', sans-serif;
+        background-color: var(--bg-deep);
+        color: #f1f5f9;
         margin: 0;
-        overflow-x: hidden;
-      }
-      /* Magical Grid Background */
-      .bg-magic-grid {
-        background-image: 
-          radial-gradient(circle at 2px 2px, var(--color-magic-glow) 1px, transparent 0);
-        background-size: 40px 40px;
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-      }
-      .bg-vignette {
-        background: radial-gradient(circle, transparent 20%, #020617 100%);
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
       }
       .font-cinzel { font-family: 'Cinzel', serif; }
       .font-medieval { font-family: 'MedievalSharp', cursive; }
       
-      .text-glow {
-        text-shadow: 0 0 10px var(--color-magic-glow), 0 0 20px rgba(20, 184, 166, 0.2);
+      .bg-magic-grid {
+        background-image: radial-gradient(circle at 1px 1px, rgba(6, 182, 212, 0.15) 1px, transparent 0);
+        background-size: 30px 30px;
+        position: fixed;
+        inset: 0;
+        z-index: -1;
       }
-      .border-glow {
-        box-shadow: 0 0 15px var(--color-magic-glow);
-        border-color: var(--color-magic);
+      .text-glow-gold {
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.2);
       }
+      .ritual-loader {
+        border: 2px solid transparent;
+        border-top: 2px solid var(--color-gold);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       
-      /* Scrollbar styling */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #020617; }
-      ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: var(--color-magic); }
-
-      /* Animations */
-      @keyframes pulse-soft {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+      .dossier-card {
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.95));
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
       }
-      .animate-pulse-soft { animation: pulse-soft 3s infinite ease-in-out; }
-
-      @keyframes slide-up {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-      }
-      .animate-slide-up { animation: slide-up 0.6s ease-out forwards; }
     </style>
     <script type="importmap">
-    {
-      "imports": {
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0"
-      }
-    }
-    </script>
+{
+  "imports": {
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "@google/genai": "https://esm.sh/@google/genai@1.25.0",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
     <script type="module" src="index.tsx"></script>
   </head>
   <body>
     <div class="bg-magic-grid"></div>
-    <div class="bg-vignette"></div>
     <div id="root"></div>
   </body>
 </html>
